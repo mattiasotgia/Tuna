@@ -1,2 +1,2 @@
-from utils import NAME
+from tuna.version import NAME
 
