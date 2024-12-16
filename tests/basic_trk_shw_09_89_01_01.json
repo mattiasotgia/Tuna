@@ -1,0 +1,20 @@
+{
+    "name": "track_shower_bdt_training_icaruscode_v09_89_01_01",
+    "path_training_sample": "path_to_data",
+    "path_testing_sample": "path_to_data",
+    "cross_validation_training": {
+        "features": [
+            "feature1",
+            "feature2",
+            "feature3"
+        ],
+        "": ""
+    },
+    "single_training": {
+        "features": [
+            "feature1",
+            "feature2",
+            "feature3"
+        ]
+    }
+}

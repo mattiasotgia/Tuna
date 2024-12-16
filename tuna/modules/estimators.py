@@ -8,3 +8,9 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier
 
+def buildAdaBoostClassifier(parameters):
+    pass
+
+
+def buildDecisionTreeClassifier(parameters):
+    pass

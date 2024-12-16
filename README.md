@@ -29,3 +29,13 @@ This way the executable can be run by the `tuna` command
 ## Note about usage
 
 The project, intended for use in LArSoft training for any  BDT is made of a set of python modules that can be controlled just by editing the `json` configuration file passed to the cli command `tuna`, is indipendent from any `LArSoft` external module. The data has to be passed as a `.txt` file format (common file format for BDT training) containing the values of the variables used to perform the cuts, for each event. The ouput model is passed as a `.xml` common in TMVA modeling and in `.pkl` common to store serialized machine learning models. 
+
+# Wiki and documentation
+
+A _sort-of-detailed_ how to guide is presented in [`doc/documentation.md`](doc/documentation.md). However, as most say[^1], perfect documentation is not that useful, so the best way to understand the code is actually to look inside.
+
+The guide is basically a list of all the current possible configurations of the different modules. Some possible tests are in the [`tests/`](tests/) folder. 
+
+
+
+[^1]: Rule 1 of writing software for nontechnical users is this: if they have to read documentation to use it you designed it wrong.   -- Eric S. Raymond, programmer and advocate of open source software
