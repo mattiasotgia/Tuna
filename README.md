@@ -32,7 +32,7 @@ The project, intended for use in LArSoft training for any  BDT is made of a set 
 
 # Wiki and documentation
 
-A _sort-of-detailed_ how to guide is presented in [`doc/documentation.md`](doc/documentation.md). However, as most say[^1], perfect documentation is not that useful, so the best way to understand the code is actually to look inside.
+A _sort-of-detailed_ __how-to__ guide is presented in [`doc/documentation.md`](doc/documentation.md). However, as most say[^1], perfect documentation is not that useful, so the best way to understand the code is actually to look inside.
 
 The guide is basically a list of all the current possible configurations of the different modules. Some possible tests are in the [`tests/`](tests/) folder. 
 

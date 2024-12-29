@@ -1,5 +1,5 @@
+
 {
-    "name": "track_shower_bdt_training_icaruscode_v09_89_01_01",
     "cross_validation_training": {
         "module_name": "kfold_cv",
         "path_training_sample": "path_to_data",
