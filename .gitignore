@@ -333,11 +333,11 @@ tags
 
 ### VisualStudioCode ###
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+# !.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/
@@ -349,3 +349,9 @@ tags
 # Ignore all local history of files
 .history
 .ionide
+
+
+### Testing and miscellanea ###
+
+test.py
+tuna/modules/test.py
