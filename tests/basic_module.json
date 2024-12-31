@@ -1,9 +1,0 @@
-    {
-    "name": "testing",
-    "test1" : {
-        "module_name": "test"
-    },
-    "test2" : {
-        "module_name": "test"
-    }
-}

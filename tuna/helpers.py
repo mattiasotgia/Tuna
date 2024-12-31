@@ -3,50 +3,89 @@
 
 from __future__ import annotations
 
+import logging
 import importlib
 import json
-import sys, os
 
 from io import TextIOWrapper
 from typing import Any
-import logging
 
-# from tuna.modules import Module
 
-def create_logger(name: Any) -> logging.Logger:
-    
+def create_logger(name: Any, main = False, level = logging.INFO) -> logging.Logger:
+    '''Simple utility to create instantaeous logger (using basic configuration)'''
+
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
 
-    if not logger.handlers:
-        console = logging.StreamHandler()
-        console.setFormatter(logging.Formatter(':::: %(name)s: %(levelname)s :::: \n%(message)s'))
-        logger.addHandler(console)
-
+    if main:
+        logging.basicConfig(
+            level=level,
+            format=':::: %(levelname)s START :::: \n %(name)s: %(message)s \n:::: %(levelname)s END   ::::',
+            # format='%(levelname)s: %(message)s',
+            handlers=[
+                logging.StreamHandler()
+            ]
+        )
     return logger
 
 
 class ModuleConfiguration:
+    '''Loader for configuration in the single modules 
+    '''
 
     def __init__(self, module_configuration: dict, subroutine_name: str):
         module_name: str | None = None
         try:
             module_name = module_configuration['module_name']
-        except KeyError: 
+        except KeyError:
             create_logger(__name__).error(
                 'Not able to load the module_name key for subroutine %s, perhaps it is missing?',
                 subroutine_name
             )
-        except Exception as e:
-            create_logger(__name__).error(e)
 
         self.module_name = module_name
 
-    def get(self, index, default = None):
-        pass
+        try:
+            module_import_path = module_configuration['module_import_path']
+        except KeyError:
+            create_logger(__name__).warning(
+                'The key module_import_path was not found, using module_name (%s) for both',
+                module_name
+            )
+            module_import_path = module_name
+        
+        self.module_import_path = module_import_path
+
+        module_configuration.pop('module_name', None)
+        module_configuration.pop('module_import_path', None)
+
+        self.configuration = module_configuration
+    
+    def get(self, index, default):
+        '''Key getter (wrapper for dict)'''
+        return self.configuration.get(index, default)
 
     def __getitem__(self, index):
-        pass
+        '''Key getter (wrapper for dicts with error catching) '''
+        value = None
+        try:
+            value = self.configuration[index]
+        except KeyError:
+            create_logger(__name__).warning(
+                'No key `%s` found in module configuration\nfor module tuna.modules.%s.%s',
+                index, self.module_import_path, self.module_name
+            )
+         
+        return value
+    
+    def __str__(self) -> str:
+        
+        description_module = f'\n:::::::: Configuration for module tuna.modules.{self.module_import_path}.{self.module_name} \n'
+        for key in self.configuration.keys():
+            description_module += f' ** {key}: {self.configuration[key]}\n'
+        if not self.configuration.keys():
+            description_module += f' ** EMPTY configuration for module...\n'
+        description_module += ':::::::: PROLOG END \n'
+        return description_module
 
 class Configuration:
 
@@ -60,6 +99,17 @@ class Configuration:
         return f'tuna.helpers.Configuration \'{self.name}\' ({len(self.subroutines)} subroutines)'
 
     def load(self, configuration: dict | TextIOWrapper | str):
+        '''Load the cofiguration from either a `str` path, a `TextIOWrapper` or a `json` loader `dict`
+
+        Parameters
+        ----------
+        `configuration`: `dict`, `TextIOWrapper` or `str`
+            Configuration file to load
+        
+        Return
+        ------
+        `Configuration`: `self`
+        '''
         create_logger(__name__).info('Loaded configuration')
 
         if isinstance(configuration, str):
@@ -85,15 +135,23 @@ class Configuration:
         self.subroutines = list(tmp.keys() - ['name'])
         self.path = tmp.get('modules_path', 'tuna.modules')
 
-    def run(self) -> None:
+        return self
+
+    def run(self, version=False) -> None:
         '''Run the current configuration. 
         '''
         create_logger(__name__).info('Running %s', self)
 
-        for sr in self.subroutines:
+        print(f'Found {len(self.subroutines)} subroutines in configuration named {self.name}')
+        print('Running...    ><(((º>  \n')
+
+        for idx, sr in enumerate(self.subroutines):
             create_logger(__name__).info('Running subroutine %s\nThe subroutine configuration follows', sr)
+            print(f'[** {idx+1}] Running subroutine `{sr}`')
 
             module_conf = ModuleConfiguration(self.__init_config__.get(sr, {}), sr)
+
+            print(module_conf)
 
             ## Run the actual modules inside the configuration files
             #  1. Import the module path
@@ -105,23 +163,34 @@ class Configuration:
                 continue
             
             if isinstance(module_conf.module_name, str):
-                try: 
-                
+                try:
                     module_path_imported = importlib.__import__(
-                        f'{self.path}.{module_conf.module_name}',
+                        f'{self.path}.{module_conf.module_import_path}',
                         globals(), locals(),
                         [module_conf.module_name]
                     )
                 except ModuleNotFoundError:
                     create_logger(__name__).warning(
-                        'Whilist module_name was provided, no module found in %s, under the name %s', 
-                        f'{self.path}.{module_conf.module_name}', module_conf.module_name
+                        'Whilist module_name was provided, no module found in %s, under the name %s. Skipping configuration...', 
+                        f'{self.path}.{module_conf.module_import_path}', module_conf.module_name
                     )
+                    continue
                 except Exception as e:
                     create_logger(__name__).error(e)
+                    continue
+                if not hasattr(module_path_imported, module_conf.module_name):
+                    create_logger(__name__).warning(
+                        'Whilist module_name was provided, no module found in %s, under the name %s. Skipping configuration...', 
+                        f'{self.path}.{module_conf.module_import_path}', module_conf.module_name
+                    )
+                    continue
                 
-                module = eval(f'module_path_imported.{module_conf.module_name}()')
-                module(module_conf)
+                module = getattr(module_path_imported, module_conf.module_name)()
+                if version:
+                    print(module)
+                else:
+                    module(module_conf)
+
 
 
 
@@ -136,17 +205,18 @@ def config(
     '''
     configuration = Configuration()
     if configuration_file is None:
-        create_logger(__name__).error('No configuration file provided. Aborting. ')
+        create_logger(__name__).error('No configuration file provided (something went wrong along the way...) \nAborting. ')
         return None
 
-    elif isinstance(configuration_file, str):
+    if isinstance(configuration_file, str):
         try:
             with open(configuration_file) as reader:
                 create_logger(__name__).info('Created configuration from file %s',
                                              configuration_file)
                 configuration.load(reader)
         except Exception as e:
-            create_logger(__name__).error(e)
+            create_logger(__name__).error('%s\nNo configuration file provided (something went wrong along the way...) \nAborting. ', e)
+            return None
 
     elif isinstance(configuration_file, TextIOWrapper):
         create_logger(__name__).info('Created configuration from TextIOWrapper')
