@@ -1,0 +1,9 @@
+{
+    "name": "cross_vavlidation_base",
+    "cross_validation_kfolding_adaboost" :{
+        "module_name": "KFoldCV",
+        "module_import_path": "kfold_cv",
+        "training_dataset_path": "",
+        "kfolds": 5
+    }
+}
