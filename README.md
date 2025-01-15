@@ -12,7 +12,7 @@
 TUNA: Training for Understanding Neutrino events in Argon
 ```
 
-# Installation and usage
+<!--# Installation and usage
 
 The executable is the `tuna.run` python script. However the suggested usage is to add the alias `tuna` to the `.bashrc/zshenv` file, by running (inside the base directory of the repository)
 ```bash
@@ -24,7 +24,7 @@ echo alias tuna="'python3 $PWD/tuna.py'" >> ~/.bashrc
 > echo alias tuna="'python3 $PWD/tuna.py'" >> ~/.zshenv
 > ```
 
-This way the executable can be run by the `tuna` command
+This way the executable can be run by the `tuna` command-->
 
 ## Note about usage
 

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from tuna.helpers import create_logger
-from tuna.helpers import Configuration, ModuleConfiguration
-
+from types import NoneType
 from typing import Any
 
+from tuna.utils.helpers import create_logger
+from tuna.utils.helpers import ModuleConfiguration
 
 class Module:
+    '''Module meta class'''
 
     ## Versioning and stuff
     __author__ = 'M Sotgia'
@@ -15,12 +16,12 @@ class Module:
     __date__ = 'never'
 
     def __init__(self):
-        self.configuration = None
+        self.configuration = ModuleConfiguration({})
 
-
-    def update(self):
-        '''Main computation inside the module is done here. This is called by the TUNA exec'''
-        pass
+    def update(self) -> None:
+        '''Main computation inside the module is done here. This is called by the TUNA exec. 
+        This has to be implemented each time in the updated module.
+        '''
 
     def __call__(self, configuration: ModuleConfiguration | None = None) -> Any:
         if self.configuration is None:

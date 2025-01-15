@@ -7,9 +7,12 @@ import logging
 import sys
 
 import tuna.version
-from tuna.helpers import config, create_logger
+from tuna.utils.helpers import config, create_logger
 
-if __name__ == '__main__':
+def main():
+    '''Main cli interface for the tuna-cli program
+    This is called by the cli command tuna -c CONFIGURATION [-h] [-v] [-V VERBOSE] [-b]
+    Installation and documentation on README.md or page'''
 
     cliapp = argparse.ArgumentParser('tuna')
     
@@ -34,7 +37,7 @@ if __name__ == '__main__':
         sys.stdout.write(tuna.version.NAME)
         
     if args.version:
-        sys.stdout.write(f'Developed by {tuna.version.AUTHOR} <{tuna.MAIL}>\nRelase {tuna.VERSION} ({tuna.RELASE_DATE})\n\n')
+        sys.stdout.write(f'Developed by {tuna.version.AUTHOR} <{tuna.version.MAIL}>\nRelase {tuna.version.VERSION} ({tuna.version.RELASE_DATE})\n\n')
 
     if args.configuration:
         configuration = config(args.configuration)

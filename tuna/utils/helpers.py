@@ -8,6 +8,7 @@ import importlib
 import json
 
 from io import TextIOWrapper
+import sys
 from typing import Any
 
 
@@ -32,37 +33,52 @@ class ModuleConfiguration:
     '''Loader for configuration in the single modules 
     '''
 
-    def __init__(self, module_configuration: dict, subroutine_name: str):
+    def __init__(self, module_configuration: dict, subroutine_name = None):
         module_name: str | None = None
-        try:
-            module_name = module_configuration['module_name']
-        except KeyError:
-            create_logger(__name__).error(
-                'Not able to load the module_name key for subroutine %s, perhaps it is missing?',
-                subroutine_name
-            )
 
-        self.module_name = module_name
+        if subroutine_name:
 
-        try:
-            module_import_path = module_configuration['module_import_path']
-        except KeyError:
-            create_logger(__name__).warning(
-                'The key module_import_path was not found, using module_name (%s) for both',
-                module_name
-            )
-            module_import_path = module_name
-        
-        self.module_import_path = module_import_path
+            try:
+                module_name = module_configuration['module_name']
+            except KeyError:
+                create_logger(__name__).error(
+                    'Not able to load the module_name key for subroutine %s, perhaps it is missing?',
+                    subroutine_name
+                )
 
-        module_configuration.pop('module_name', None)
-        module_configuration.pop('module_import_path', None)
+            self.module_name = module_name
+
+            try:
+                module_import_path = module_configuration['module_import_path']
+            except KeyError:
+                create_logger(__name__).warning(
+                    'The key module_import_path was not found, using module_name (%s) for both',
+                    module_name
+                )
+                module_import_path = module_name
+            
+            self.module_import_path = module_import_path
+
+            module_configuration.pop('module_name', None)
+            module_configuration.pop('module_import_path', None)
 
         self.configuration = module_configuration
     
-    def get(self, index, default):
+    def get(self, index, default, required = False):
         '''Key getter (wrapper for dict)'''
-        return self.configuration.get(index, default)
+
+        key_val = None
+
+        if required:
+            try:
+                key_val = self.configuration[index]
+            except KeyError:
+                create_logger(__name__).error('Key %s is required, so the program will not work')
+                sys.exit(2)
+        else:
+            key_val = self.configuration.get(index, default)
+
+        return key_val
 
     def __getitem__(self, index):
         '''Key getter (wrapper for dicts with error catching) '''
@@ -81,13 +97,14 @@ class ModuleConfiguration:
         
         description_module = f'\n:::::::: Configuration for module tuna.modules.{self.module_import_path}.{self.module_name} \n'
         for key in self.configuration.keys():
-            description_module += f' ** {key}: {self.configuration[key]}\n'
+            description_module += f' ** {key}: {self.configuration[key]} (type: {type(self.configuration[key])})\n'
         if not self.configuration.keys():
             description_module += f' ** EMPTY configuration for module...\n'
         description_module += ':::::::: PROLOG END \n'
         return description_module
 
 class Configuration:
+    '''Configuration class'''
 
     def __init__(self):
         self.subroutines = []
@@ -113,7 +130,7 @@ class Configuration:
         create_logger(__name__).info('Loaded configuration')
 
         if isinstance(configuration, str):
-            try: 
+            try:
                 tmp = json.load(open(configuration))
             except Exception as e:
                 create_logger(__name__).error(e)
@@ -151,7 +168,8 @@ class Configuration:
 
             module_conf = ModuleConfiguration(self.__init_config__.get(sr, {}), sr)
 
-            print(module_conf)
+            if not version:
+                print(module_conf)
 
             ## Run the actual modules inside the configuration files
             #  1. Import the module path
