@@ -26,6 +26,13 @@ python3 -m venv tuna_env
 source tuna_env/bin/activate
 ```
 
+## Note
+The modules make use of the `$TUNA_PATH` environment variable, so it is suggested this is added to either the `.bashrc` or `.zshenv` by running 
+
+```bash 
+echo export TUNA_PATH=${cwd} >> .bashrc
+```
+
 <!--# Installation and usage
 
 The executable is the `tuna.run` python script. However the suggested usage is to add the alias `tuna` to the `.bashrc/zshenv` file, by running (inside the base directory of the repository)

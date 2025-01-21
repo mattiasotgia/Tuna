@@ -33,90 +33,76 @@ class ModuleConfiguration:
     '''Loader for configuration in the single modules 
     '''
 
-    def __init__(self, module_configuration: dict, subroutine_name = None):
-        module_name: str | None = None
+    def __init__(self, module_configuration: dict[str, Any], subroutine_name: str | None = None):
+        self.module_name: str | None = module_configuration.pop('module_name', None)
+        self.module_import_path: str | None =  module_configuration.pop(
+            'module_import_path', self.module_name
+        )
+        self.configuration = module_configuration
+        self.base_configuration = {}
         self.__default__ = False
 
+        if subroutine_name and not self.module_name:
+            create_logger(__name__).error(
+                'Missing "module_name" key for subroutine "%s".', subroutine_name
+            )
 
-        if subroutine_name:
-
-            try:
-                module_name = module_configuration['module_name']
-            except KeyError:
-                create_logger(__name__).error(
-                    'Not able to load the module_name key for subroutine %s, perhaps it is missing?',
-                    subroutine_name
-                )
-
-            self.module_name = module_name
-
-            try:
-                module_import_path = module_configuration['module_import_path']
-            except KeyError:
-                create_logger(__name__).warning(
-                    'The key module_import_path was not found, using module_name (%s) for both',
-                    module_name
-                )
-                module_import_path = module_name
-            
-            self.module_import_path = module_import_path
-
-            module_configuration.pop('module_name', None)
-            module_configuration.pop('module_import_path', None)
-
-        self.configuration = module_configuration
     
-    def get(self, index, required = False):
-        '''Key getter (wrapper for dict)'''
+    def get(self, key: str, required: bool = False):
+        '''Retrieve a configuration key with optional requirement check'''
+
+        default_value = None
 
         if not self.__default__:
             required = True
-
-        key_val = None
-        try:
-            default = self.base_configuration[index]
-        except KeyError:
-            create_logger(__name__).error('No key %s found on the base confguraion, stopping...', index)
-            sys.exit(2)
-
-        if required:
-            try:
-                key_val = self.configuration[index]
-            except KeyError:
-                create_logger(__name__).error('Key %s is required, so the program will not work')
-                sys.exit(2)
         else:
-            key_val = self.configuration.get(index, default)
+            try:
+                default_value = self.base_configuration[key]
+            except KeyError:
+                create_logger(__name__).error(
+                    'No key %s found on the base configuration \
+                    even though base_configuration exists \n\
+                    This would break so killing the process...')
+                sys.exit(2)
 
-        return key_val
+        try:
+            value = self.configuration[key]
+        except KeyError:
+                if required:
+                    create_logger(__name__).error(
+                        'Key %s is required, so the program will not work.',
+                        key
+                    )
+                    sys.exit(2) 
+                else:
+                    value = self.configuration.get(key, default_value)
 
-    def default(self, default_config: str):
+        return value
+
+    def default(self, default_config_path: str):
         '''Set default configuration for module. Call this 
         first time the module itself is built (in the `Module.update()` function)
+        
+        Internally sets `self.__default__ = False` if file not opened/json loader not parsed. 
         '''
         self.__default__ = True
-        __def_conf_str__ = default_config
-        try:
-            __file_read__ = open(__def_conf_str__)
-        except FileNotFoundError:
-            create_logger(__name__).error('Base configuration not found, \n [?] %s', __def_conf_str__)
-        except Exception as e:
-            create_logger(__name__).error(e)
-        
-        self.base_configuration = json.load(__file_read__)
 
-    def __getitem__(self, index):
-        '''Key getter (wrapper for dicts with error catching) '''
-        value = None
         try:
-            value = self.configuration[index]
-        except KeyError:
+            with open(default_config_path) as f:
+                self.base_configuration = json.load(f)
+        
+        except FileNotFoundError:
+            create_logger(__name__).warning('Base configuration not found, \n [?] %s', default_config_path)
+            self.__default__ = False
+        except json.JSONDecodeError as e:
             create_logger(__name__).warning(
-                'No key `%s` found in module configuration\nfor module tuna.modules.%s.%s',
-                index, self.module_import_path, self.module_name
+                'Failed to parse JSON from %s: %s', default_config_path, e
             )
-         
-        return value
+            self.__default__ = False
+        
+    def __getitem__(self, key):
+        '''Get configuration key with fallback to default'''
+        return self.configuration.get(key, self.base_configuration.get(key))
     
     def __str__(self) -> str:
         
@@ -132,15 +118,15 @@ class Configuration:
     '''Configuration class'''
 
     def __init__(self):
-        self.subroutines = []
+        self.subroutines: list[str] = []
         self.name = 'unknown'
-        self.__init_config__: dict = {}
-        self.path = ''
+        self.path = 'tuna.modules'
+        self.initial_configuration: dict[str, Any] = {}
 
     def __str__(self) -> str:
-        return f'tuna.helpers.Configuration \'{self.name}\' ({len(self.subroutines)} subroutines)'
+        return f"{__name__}.Configuration(name='{self.name}' subroutines={self.subroutines})"
 
-    def load(self, configuration: dict | TextIOWrapper | str):
+    def load(self, configuration: dict | str | TextIOWrapper):
         '''Load the cofiguration from either a `str` path, a `TextIOWrapper` or a `json` loader `dict`
 
         Parameters
@@ -152,46 +138,57 @@ class Configuration:
         ------
         `Configuration`: `self`
         '''
-        create_logger(__name__).info('Loaded configuration')
 
         if isinstance(configuration, str):
             try:
-                tmp = json.load(open(configuration))
-            except Exception as e:
-                create_logger(__name__).error(e)
+                with open(configuration) as f:
+                    tmp = json.load(f) 
+            except FileNotFoundError:
+                create_logger(__name__).error(
+                    'The file corresponding to the configuration loaded is not existing\nPath %s not found',
+                    configuration
+                )
+            except json.JSONDecodeError as e:
+                create_logger(__name__).error(
+                    'Reading configuration there were some error in json parsing\nPath %s\nJSON decoding error follows: %s',
+                    configuration, e
+                )
         elif isinstance(configuration, TextIOWrapper):
-            tmp = json.load(configuration)
+            try:
+                tmp = json.load(configuration)
+            except json.JSONDecodeError as e:
+                create_logger(__name__).error(
+                    'Reading configuration there were some error in json parsing\nJSON decoding error follows: %s',
+                    e
+                )
         else:
             tmp = configuration
 
-        self.__init_config__: dict = tmp
+        self.initial_configuration = tmp
 
-        try:
-            self.name = tmp['name']
-        except KeyError:
-            create_logger(__name__).error('Processed configuration but missing name, autoassigning')
-        except Exception as e:
-            create_logger(__name__).error(e)
+        self.name = tmp.pop('name', self.name)
+        self.path = tmp.pop('modules_path', self.path)
 
-
-        self.subroutines = list(tmp.keys() - ['name'])
-        self.path = tmp.get('modules_path', 'tuna.modules')
+        self.subroutines = list(tmp.keys())
 
         return self
 
     def run(self, version=False) -> None:
         '''Run the current configuration. 
         '''
+
         create_logger(__name__).info('Running %s', self)
 
         print(f'Found {len(self.subroutines)} subroutines in configuration named {self.name}')
         print('Running...    ><(((º>  \n')
 
-        for idx, sr in enumerate(self.subroutines):
-            create_logger(__name__).info('Running subroutine %s\nThe subroutine configuration follows', sr)
-            print(f'[** {idx+1}] Running subroutine `{sr}`')
+        for idx, subroutine in enumerate(self.subroutines):
 
-            module_conf = ModuleConfiguration(self.__init_config__.get(sr, {}), sr)
+            print(f'[** {idx+1}] Running subroutine `{subroutine}`')
+
+            module_conf = ModuleConfiguration(
+                self.initial_configuration.get(subroutine, {}), subroutine
+            )
 
             if not version:
                 print(module_conf)
@@ -201,16 +198,14 @@ class Configuration:
             if not module_conf.module_name:
                 create_logger(__name__).warning(
                     'Stopped execution of subroutine %s, no module_name was provided', 
-                    sr
+                    subroutine
                 )
                 continue
             
             if isinstance(module_conf.module_name, str):
                 try:
-                    module_path_imported = importlib.__import__(
-                        f'{self.path}.{module_conf.module_import_path}',
-                        globals(), locals(),
-                        [module_conf.module_name]
+                    module_path_imported = importlib.import_module(
+                        f'{self.path}.{module_conf.module_import_path}'
                     )
                 except ModuleNotFoundError:
                     create_logger(__name__).warning(
@@ -223,7 +218,7 @@ class Configuration:
                     continue
                 if not hasattr(module_path_imported, module_conf.module_name):
                     create_logger(__name__).warning(
-                        'Whilist module_name was provided, no module found in %s, under the name %s. Skipping configuration...', 
+                        'Whilist module_name was provided, no <tuna.modules.Module> found in %s, under the name %s.\nSkipping configuration...', 
                         f'{self.path}.{module_conf.module_import_path}', module_conf.module_name
                     )
                     continue
@@ -246,22 +241,17 @@ def config(
     ------
     `None` or `tuna.helper.Configuration` 
     '''
-    configuration = Configuration()
-    if configuration_file is None:
-        create_logger(__name__).error('No configuration file provided (something went wrong along the way...) \nAborting. ')
+
+    if not configuration_file:
+        create_logger(__name__).error('No configuration file provided. Aborting.')
         return None
 
-    if isinstance(configuration_file, str):
-        try:
-            with open(configuration_file) as reader:
-                create_logger(__name__).info('Created configuration from file %s',
-                                             configuration_file)
-                configuration.load(reader)
-        except Exception as e:
-            create_logger(__name__).error('%s\nNo configuration file provided (something went wrong along the way...) \nAborting. ', e)
-            return None
-
-    elif isinstance(configuration_file, TextIOWrapper):
-        create_logger(__name__).info('Created configuration from TextIOWrapper')
+    configuration = Configuration()
+    try:
         configuration.load(configuration_file)
-    return configuration
+        create_logger(__name__).info('Configuration loaded from "%s".', configuration_file)
+        return configuration
+    except Exception as e:
+        create_logger(__name__).error('Failed to load configuration: %s', e)
+        return None
+

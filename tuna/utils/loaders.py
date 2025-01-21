@@ -58,14 +58,15 @@ class DatasetLoader:
             order = np.random.permutation(__tmp[:,-1].size)
             __tmp = __tmp[order]
 
+        training_features = __tmp[:,0:-1]
+        training_labels = __tmp[:,-1]
+        
         ## TODO:
         ##  - Missing equalization
         
         if equalize_populations:
             pass
 
-        training_features = __tmp[:,0:-1]
-        training_labels = __tmp[:,-1]
 
         return cls(training_features=training_features,
                    training_labels=training_labels,
