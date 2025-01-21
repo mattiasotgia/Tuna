@@ -21,7 +21,7 @@ class DatasetLoader:
         self.split = split
 
     @classmethod
-    def load_csv(cls, path: str, skip_first: int = 1, equalize_populations = False, randomize = False, split = 1, shuffle = True) -> 'DatasetLoader':
+    def load_csv(cls, path: str, skip_first: int = 1, equalize_populations = False, split = 1, shuffle = True) -> 'DatasetLoader':
 
         length_of_csv = 0
 
@@ -54,7 +54,7 @@ class DatasetLoader:
         __tmp = np.concatenate(__tmp)
 
         ## Randomize the loaded order
-        if randomize: 
+        if shuffle: 
             order = np.random.permutation(__tmp[:,-1].size)
             __tmp = __tmp[order]
 

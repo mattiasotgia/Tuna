@@ -73,7 +73,7 @@ class ModuleConfiguration:
                         'Key %s is required, so the program will not work.',
                         key
                     )
-                    sys.exit(2) 
+                    sys.exit(2)
                 else:
                     value = self.configuration.get(key, default_value)
 
