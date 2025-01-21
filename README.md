@@ -1,4 +1,4 @@
-# TUNA: Training for Understanding Neutrino events in Argon
+# TUNA: Training for Understanding Neutrino events in Argon :fishing_pole_and_fish:
 
 ```markdown
                   ><(((º>  .... ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░ ░▒▓██████▓▒░
@@ -10,6 +10,20 @@
  ><(((º>                   ....    ░▒▓█▓▒░    ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░
 
 TUNA: Training for Understanding Neutrino events in Argon
+```
+
+# Installation and usage
+
+To install this package and its relative cli app `tuna` the easiest way is to clone this repository and then once in the repository top directory run the command 
+
+```bash
+pip install -e .
+```
+This ensure both the `tuna` cli and the `tuna` module are installed in the system. It is suggested that the installation happens inside a python virtual environment. One very basic environment can be created by running 
+
+```bash
+python3 -m venv tuna_env
+source tuna_env/bin/activate
 ```
 
 <!--# Installation and usage

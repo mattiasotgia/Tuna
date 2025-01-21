@@ -35,6 +35,8 @@ class ModuleConfiguration:
 
     def __init__(self, module_configuration: dict, subroutine_name = None):
         module_name: str | None = None
+        self.__default__ = False
+
 
         if subroutine_name:
 
@@ -64,10 +66,18 @@ class ModuleConfiguration:
 
         self.configuration = module_configuration
     
-    def get(self, index, default, required = False):
+    def get(self, index, required = False):
         '''Key getter (wrapper for dict)'''
 
+        if not self.__default__:
+            required = True
+
         key_val = None
+        try:
+            default = self.base_configuration[index]
+        except KeyError:
+            create_logger(__name__).error('No key %s found on the base confguraion, stopping...', index)
+            sys.exit(2)
 
         if required:
             try:
@@ -79,6 +89,21 @@ class ModuleConfiguration:
             key_val = self.configuration.get(index, default)
 
         return key_val
+
+    def default(self, default_config: str):
+        '''Set default configuration for module. Call this 
+        first time the module itself is built (in the `Module.update()` function)
+        '''
+        self.__default__ = True
+        __def_conf_str__ = default_config
+        try:
+            __file_read__ = open(__def_conf_str__)
+        except FileNotFoundError:
+            create_logger(__name__).error('Base configuration not found, \n [?] %s', __def_conf_str__)
+        except Exception as e:
+            create_logger(__name__).error(e)
+        
+        self.base_configuration = json.load(__file_read__)
 
     def __getitem__(self, index):
         '''Key getter (wrapper for dicts with error catching) '''

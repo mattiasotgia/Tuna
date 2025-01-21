@@ -5,11 +5,11 @@ def read_requirements():
     requirements_file = Path(__file__).parent / "requirements.txt"
     if requirements_file.exists():
         with open(requirements_file) as f:
-            return f.read().splitlines()
+            return f.readlines()
     return []
 
 setup(
-    name="tuna-cli",
+    name="tuna-sbn",
     version="0.1.0",
     description="A Python CLI for managin training/testing workflows application in ICARUS/SBN reconstruction",
     long_description=open("README.md").read(),

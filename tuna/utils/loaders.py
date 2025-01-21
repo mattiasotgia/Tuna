@@ -21,11 +21,15 @@ class DatasetLoader:
         self.split = split
 
     @classmethod
-    def load_csv(cls, path: str, skip_first: int = 1, equalize_populations = False, randomize = False) -> 'DatasetLoader':
+    def load_csv(cls, path: str, skip_first: int = 1, equalize_populations = False, randomize = False, split = 1, shuffle = True) -> 'DatasetLoader':
 
         length_of_csv = 0
 
         __files = glob.glob(path)
+        
+        if not __files:
+            create_logger(__name__).error('Empty list? Check import...')
+            sys.exit(2)
         
         try:
             with open(__files[0], 'r') as __f0:
@@ -47,7 +51,7 @@ class DatasetLoader:
             except Exception as e:
                 create_logger(__name__).error('Having some problems with a file...\n%s\n%s', __f, e) 
 
-        __tmp = np.concat(__tmp)
+        __tmp = np.concatenate(__tmp)
 
         ## Randomize the loaded order
         if randomize: 
@@ -63,7 +67,7 @@ class DatasetLoader:
         training_features = __tmp[:,0:-1]
         training_labels = __tmp[:,-1]
 
-        return cls(trainig_features=training_features,
+        return cls(training_features=training_features,
                    training_labels=training_labels,
-                   shuffle = True,
-                   split = 1)
+                   shuffle=shuffle,
+                   split=split)
