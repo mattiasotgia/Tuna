@@ -4,8 +4,11 @@ This module perform the k-fold cross validation using the sample passed trough t
 module configuration file. '''
 
 from os import path
+import os
+from pathlib import Path
 from typing import override
 
+import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.tree import DecisionTreeClassifier
@@ -35,10 +38,10 @@ class KFoldCV(Module):
         output_path = __config.get('output_path', required=True)
         output_name = __config.get('output_name')
 
-        # 2. Load all the data for training/testing and so on... 
+        # 2. Load all the data for training/testing and so on...
         dataset_string = path.join(training_dataset_path)
         loader = DatasetLoader.load_csv(
-            dataset_string, 
+            dataset_string,
             equalize_populations=__config.get('equalize_classes'),
             split=__config.get('training_split'),
             shuffle=__config.get('shuffle_dataset')
@@ -81,3 +84,12 @@ class KFoldCV(Module):
         # Still TODO: 
         #  - add final touches to save results in some sort of file,
         #  - and maybe the ability to add some post-processing
+        
+        results_df = pd.DataFrame(cv_results_grid)
+        results_df.to_csv(Path(output_path, f'{output_name}.csv'))
+
+        # print('The found best results are ')
+        # print(grid_search.best_params_)
+        # print('\n')
+        # print(results_df)
+ 
