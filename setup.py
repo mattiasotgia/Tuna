@@ -10,7 +10,7 @@ def read_requirements():
 
 setup(
     name="tuna-sbn",
-    version="0.1.0",
+    version="1.0",
     description="A Python CLI for managin training/testing workflows application in ICARUS/SBN reconstruction",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

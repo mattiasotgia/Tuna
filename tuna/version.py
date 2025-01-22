@@ -16,6 +16,6 @@ NAME = '''
                                                                                       
 TUNA: Training for Understanding Neutrino events in Argon                               
 '''
-VERSION='0.0'
-RELASE_DATE='never'
+VERSION='1.0'
+RELASE_DATE='Jan 22nd, 2025'
 
