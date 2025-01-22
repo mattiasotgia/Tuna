@@ -29,7 +29,7 @@ class KFoldCV(Module):
     def update(self):
         
         # 1. Initialize all ecessry steps
-        self.configuration.default('$TUNAPATH/configurations/base/kfold_cv.json')
+        self.configuration.default('$TUNA_PATH/configurations/base/kfold_cv.json')
         __config: ModuleConfiguration = self.configuration
         
         training_dataset_path: str = __config.get('training_dataset_path', required=True)
