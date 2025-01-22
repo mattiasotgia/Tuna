@@ -27,7 +27,7 @@ class KFoldCV(Module):
     def update(self):
         
         # 1. Initialize all ecessry steps
-        self.configuration.default('$TUNA_PATH/configurations/base/kfold_cv.json')
+        self.configuration.default(path.expandvars('$TUNA_PATH/configurations/base/kfold_cv.json'))
         __config: ModuleConfiguration = self.configuration
         
         training_dataset_path: str = __config.get('training_dataset_path', required=True)
@@ -50,14 +50,14 @@ class KFoldCV(Module):
         # 3. Define the parameter grids
 
         parameters_grid = {
-            'base_estimator__max_depth'             : __config.get('base_estimator__max_depth', required=True),
-            'base_estimator__min_impurity_decrease' : __config.get('base_estimator__min_impurity_decrease', required=True),
-            'base_estimator__min_samples_split'     : __config.get('base_estimator__min_samples_split', required=True),
-            'base_estimator__min_samples_leaf'      : __config.get('base_estimator__min_samples_leaf', required=True),
-            'base_estimator__ccp_alpha'             : __config.get('base_estimator__ccp_alpha', required=True),
+            'estimator__max_depth'             : __config.get('estimator__max_depth', required=True),
+            'estimator__min_impurity_decrease' : __config.get('estimator__min_impurity_decrease', required=True),
+            'estimator__min_samples_split'     : __config.get('estimator__min_samples_split', required=True),
+            'estimator__min_samples_leaf'      : __config.get('estimator__min_samples_leaf', required=True),
+            'estimator__ccp_alpha'             : __config.get('estimator__ccp_alpha', required=True),
             ## Only hardcoded parameter. JSON limitation
-            'base_estimator__class_weight'          : None, # __config.get('base_estimator__class_weight'), 
-            'base_estimator__criterion'             : __config.get('base_estimator__criterion'),
+            'estimator__class_weight'          : [None], # __config.get('estimator__class_weight'), 
+            'estimator__criterion'             : __config.get('estimator__criterion'),
             'n_estimators'                          : __config.get('n_estimators', required=True),
             'learning_rate'                         : __config.get('learning_rate', required=True),
             'algorithm'                             : __config.get('algorithm')

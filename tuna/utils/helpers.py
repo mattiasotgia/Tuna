@@ -60,9 +60,9 @@ class ModuleConfiguration:
                 default_value = self.base_configuration[key]
             except KeyError:
                 create_logger(__name__).error(
-                    'No key %s found on the base configuration \
-                    even though base_configuration exists \n\
-                    This would break so killing the process...')
+                    'No key %s found on the base configuration even though base_configuration exists \nThis would break so killing the process...',
+                    key
+                )
                 sys.exit(2)
 
         try:
