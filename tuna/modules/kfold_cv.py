@@ -25,7 +25,7 @@ class KFoldCV(Module):
     __version__ = '1.0'
     __date__ = 'jan 21st, 2025'
 
-    @override
+    # @override
     def update(self):
         
         # 1. Initialize all ecessry steps
