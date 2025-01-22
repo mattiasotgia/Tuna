@@ -21,7 +21,7 @@ class KFoldCV(Module):
 
     __author__ = 'M Sotgia'
     __mail__ = 'mattia.sotgia@ge.infn.it'
-    __version__ = '1.1'
+    __version__ = 'v01_01'
     __date__ = 'jan 22nd, 2025'
 
     def update(self):
