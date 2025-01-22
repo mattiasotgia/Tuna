@@ -5,7 +5,6 @@ module configuration file. '''
 
 from os import path
 from pathlib import Path
-from typing import override
 
 import pandas as pd
 from sklearn.ensemble import AdaBoostClassifier
@@ -22,10 +21,9 @@ class KFoldCV(Module):
 
     __author__ = 'M Sotgia'
     __mail__ = 'mattia.sotgia@ge.infn.it'
-    __version__ = '1.0'
-    __date__ = 'jan 21st, 2025'
+    __version__ = '1.1'
+    __date__ = 'jan 22nd, 2025'
 
-    # @override
     def update(self):
         
         # 1. Initialize all ecessry steps

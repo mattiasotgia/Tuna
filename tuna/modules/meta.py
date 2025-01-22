@@ -15,7 +15,7 @@ class Module:
     __date__ = 'never'
 
     def __init__(self):
-        self.configuration = ModuleConfiguration({})
+        self.configuration: ModuleConfiguration | None = None
 
     def update(self) -> None:
         '''Main computation inside the module is done here. This is called by the TUNA exec. 
