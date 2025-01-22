@@ -1,6 +1,5 @@
-from __future__ import annotations
+# from __future__ import annotations
 
-from types import NoneType
 from typing import Any
 
 from tuna.utils.helpers import create_logger

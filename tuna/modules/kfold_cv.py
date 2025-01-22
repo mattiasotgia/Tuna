@@ -4,7 +4,6 @@ This module perform the k-fold cross validation using the sample passed trough t
 module configuration file. '''
 
 from os import path
-import os
 from pathlib import Path
 from typing import override
 
