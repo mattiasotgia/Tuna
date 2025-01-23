@@ -11,7 +11,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.tree import DecisionTreeClassifier
 
-from tuna.utils.helpers import ModuleConfiguration
+from tuna.utils.helpers import ModuleConfiguration, create_logger
 from tuna.modules import Module
 from tuna.utils.loaders import DatasetLoader
 
@@ -21,7 +21,7 @@ class KFoldCV(Module):
 
     __author__ = 'M Sotgia'
     __mail__ = 'mattia.sotgia@ge.infn.it'
-    __version__ = 'v01_01'
+    __version__ = 'v01_01_02'
     __date__ = 'jan 22nd, 2025'
 
     def update(self):
@@ -74,12 +74,11 @@ class KFoldCV(Module):
         scoring = __config.get('scoring')
         n_jobs = __config.get('n_jobs', True)
 
-        grid_search = GridSearchCV(estimator=estimator, param_grid=parameters_grid, cv=cv, scoring=scoring, n_jobs=n_jobs)
+        grid_search = GridSearchCV(estimator=estimator, param_grid=parameters_grid, cv=cv, scoring=scoring, n_jobs=n_jobs, verbose=5)
         grid_search.fit(signals, labels)
         cv_results_grid = grid_search.cv_results_
 
         # Still TODO: 
-        #  - add final touches to save results in some sort of file,
         #  - and maybe the ability to add some post-processing
         
         results_df = pd.DataFrame(cv_results_grid)

@@ -20,7 +20,7 @@ def create_logger(name: Any, main = False, level = logging.INFO) -> logging.Logg
     if main:
         logging.basicConfig(
             level=level,
-            format=':::: %(levelname)s START :::: \n %(name)s: %(message)s \n:::: %(levelname)s END   ::::',
+            format='[%(name)s: %(levelname)s] %(message)s',
             # format='%(levelname)s: %(message)s',
             handlers=[
                 logging.StreamHandler()

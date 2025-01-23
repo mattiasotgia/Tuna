@@ -22,8 +22,8 @@ def main():
     cliapp.add_argument('-v', '--version', action='store_true', 
                         help='Show version and important info of the TUNA cliapp. If called with -c will show the versioning of all modules called by the configuration file'
                         )
-    cliapp.add_argument('-V', '--verbose', action='store', 
-                        required=False, nargs='?', const='2', default='0', 
+    cliapp.add_argument('-V', '--verbose', action='store',
+                        required=False, nargs='?', const='2', default='0',
                         choices=['0', '1', '2'], help='Verbosity level 0: ERRORS, 1: WARNINGS, 2: INFO. Default to 0: ERRORS')
 
     args = cliapp.parse_args()
