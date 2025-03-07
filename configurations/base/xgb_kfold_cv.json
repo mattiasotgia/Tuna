@@ -1,0 +1,20 @@
+{
+    "training_dataset_path": "",
+    "output_path": "",
+    "output_name": "default_kfold_cv_output",
+    "no_features": 13,
+    "equalize_classes": false,
+    "training_split": 1,
+    "shuffle_dataset": true,
+    "learning_rate":     [0, 1],
+    "min_split_loss":    [0, 9999],
+    "max_depth":         [0, 6],
+    "min_child_weight":  [0, 9999],
+    "max_delta_step":    [0, 9999],
+    "colsample_bytree":  [0.000001, 1],
+    "colsample_bylevel": [0.000001, 1],
+    "colsample_bynode":  [0.000001, 1],
+    "kfolds":            [5, 3],
+    "scoring": "accuracy",
+    "n_jobs": 200
+}
